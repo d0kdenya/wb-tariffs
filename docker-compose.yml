@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: wb_pg
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      TZ: ${TZ:-Europe/Moscow}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+  api:
+    build: .
+    container_name: wb_api
+    env_file:
+      - .env
+    environment:
+      TZ: ${TZ:-Europe/Moscow}
+      NODE_ENV: production
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    command: [ "node", "dist/src/main.js" ]
+    dns:
+      - 8.8.8.8
+      - 1.1.1.1
+
+volumes:
+  pgdata:
